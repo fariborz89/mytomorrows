@@ -1,11 +1,11 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
-from sqlalchemy import create_engine
-from datetime import datetime
-from utils.config import SERVER_PORT, DB
-from utils.base import create_final_dict
 
-db_connect = create_engine('sqlite:///' + DB)
+from datetime import datetime
+from utils.config import SERVER_PORT
+from utils.base import create_final_dict
+from db.services import DbServices
+
 app = Flask(__name__)
 api = Api(app)
 
@@ -21,15 +21,18 @@ class NewSales(Resource):
                 line = f.readline()
                 continue
             words = line.split(',')
-            conn = db_connect.connect()
+            # conn = db_connect.connect()
             list_time = words[8].split(' ')
             sale_date_string = ' '.join(list_time[1: 4]) + ' ' + list_time[5]
             sale_date = datetime.strptime(sale_date_string, "%b %d %H:%M:%S %Y")
-            conn.execute("insert into data values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                         (words[0], words[1], int(words[2]), words[3], int(words[4]), int(words[5]), int(words[6]),
-                          words[7],
-                          sale_date.strftime('%Y-%m-%d'), int(words[9]), float(words[10]), float(words[11]))
-                         )
+            command_to_insert = 'insert into data values(\'{0}\', \'{1}\', {2}, \'{3}\', {4}, {5}, {6},' \
+                                ' \'{7}\', \'{8}\', {9}, {10}, {11});'.format(
+                words[0], words[1], int(words[2]), words[3], int(words[4]), int(words[5]), int(words[6]),
+                words[7],
+                sale_date.strftime('%Y-%m-%d'), int(words[9]), float(words[10]), float(words[11]))  # type: str
+            #
+            # conn.execute(commnad)
+            DbServices.query_execut(command_to_insert)
             line = f.readline()
             print(line)
         return 'file uploaded successfully', 201
@@ -39,13 +42,13 @@ class AggregatedData(Resource):
     def get(self, aggregation_type, from_date, to_date):
         from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
         to_date = datetime.strptime(to_date, "%Y-%m-%d").date()
-        conn = db_connect.connect()
+        # conn = db_connect.connect()
 
         command = 'select min(price), max(price), avg(price), {0} from data where SaleDate ' \
                   'between \'{1}\' and \'{2}\' group by {0};'.format(aggregation_type, from_date, to_date)
         print(command)
-        query = conn.execute(command)
-
+        # query = conn.execute(command)
+        query = DbServices.query_execut(command)
         final_dict = create_final_dict(aggregation_type, query)
         return final_dict, 200
 
@@ -80,14 +83,15 @@ class FilteredAggregatedData(Resource):
 
         from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
         to_date = datetime.strptime(to_date, "%Y-%m-%d").date()
-        conn = db_connect.connect()
+        # conn = db_connect.connect()
 
         command = 'select min(price), max(price), avg(price), {0} from data where SaleDate ' \
                   'between \'{1}\' and \'{2}\' And {3} {4} {5} group by {0};'.format \
             (aggregation_type, from_date, to_date, city_condition, size_condition, type_condition)
 
         print(command)
-        query = conn.execute(command)
+        # query = conn.execute(command)
+        query = DbServices.query_execut(command)
 
         return create_final_dict(aggregation_type, query), 200
 
@@ -97,6 +101,6 @@ api.add_resource(AggregatedData, '/v1/buildings/sale/aggregated/<aggregation_typ
 api.add_resource(FilteredAggregatedData,
                  '/v1/buildings/sale/aggregated/filter/<aggregation_type>/<from_date>/<to_date>')  # Route_3
 
-
 if __name__ == '__main__':
+    DbServices.create_table_data()
     app.run(port=SERVER_PORT)
