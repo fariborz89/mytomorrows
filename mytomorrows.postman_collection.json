@@ -1,0 +1,102 @@
+{
+	"id": "4a6ca153-5ed8-a665-a5ed-9ec9c8c9fcbb",
+	"name": "mytomorrows",
+	"description": "",
+	"order": [
+		"d001a5da-b07a-fa08-94fd-f2ad4f8713ad",
+		"3b7e7fd5-4c10-6492-c4ae-52e68e8e0810",
+		"f92ca671-4459-ba77-3fe3-c76db4e431bb"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1556285445019,
+	"owner": "173476",
+	"public": false,
+	"requests": [
+		{
+			"id": "3b7e7fd5-4c10-6492-c4ae-52e68e8e0810",
+			"headers": "",
+			"headerData": [],
+			"url": "http://127.0.0.1:8080/v1/buildings/sale/aggregated/city/2008-05-15/2008-05-21",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "4a6ca153-5ed8-a665-a5ed-9ec9c8c9fcbb",
+			"data": null,
+			"dataMode": "params",
+			"name": "aggregated data",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1556285480127,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "d001a5da-b07a-fa08-94fd-f2ad4f8713ad",
+			"headers": "",
+			"headerData": [],
+			"url": "http://127.0.0.1:8080/v1/buildings/sale",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "4a6ca153-5ed8-a665-a5ed-9ec9c8c9fcbb",
+			"data": [
+				{
+					"key": "file",
+					"value": "",
+					"description": "",
+					"type": "file",
+					"enabled": true
+				}
+			],
+			"dataMode": "params",
+			"name": "upload csv file",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1556285449524,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "f92ca671-4459-ba77-3fe3-c76db4e431bb",
+			"headers": "",
+			"headerData": [],
+			"url": "http://127.0.0.1:8080/v1/buildings/sale/aggregated/filter/type/2008-05-15/2008-05-21?city=SACRAMENTO",
+			"queryParams": [
+				{
+					"key": "city",
+					"value": "SACRAMENTO",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "4a6ca153-5ed8-a665-a5ed-9ec9c8c9fcbb",
+			"data": null,
+			"dataMode": "params",
+			"name": "http://127.0.0.1:8080/v1/buildings/sale/aggregated/filter/type/2008-05-15/2008-05-21?city=SACRAMENTO",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1556285492526,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}
