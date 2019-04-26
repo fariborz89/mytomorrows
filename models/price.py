@@ -2,7 +2,7 @@ class Price:
     def __init__(self, min, max, avg):
         self.min = min
         self.max = max
-        self.avg = avg
+        self.avg = round(avg, 1)
 
 
 class CityPrice(Price):
