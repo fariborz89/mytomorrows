@@ -51,10 +51,14 @@ class NewSales(Resource):
                 'price': int(words[9]),
                 'latitude': float(words[10]),
                 'longitude': float(words[11])}
+            try:
+                DbServices.insert_data(dict)
+            except:
+                return 'Something went wrong with this line: ' + line + ' BUT THE PREVIOUS LINES ARE SAVED.', 500
 
-            DbServices.insert_data(dict)
             line = f.readline()
             print line
+
         return 'File uploaded successfully', 201
 
     def check_input_file(self, f):
@@ -114,7 +118,10 @@ class AggregatedData(Resource):
 
         command = 'select min(price), max(price), avg(price), {0} from sales where sale_date ' \
                   'between \'{1}\' and \'{2}\' group by {0};'.format(aggregation_type, from_date, to_date)
-        query = DbServices.query_execute(command)
+        try:
+            query = DbServices.query_execute(command)
+        except:
+            return "Something went wrong!", 500
         final_dict = create_final_dict(aggregation_type, query)
         return final_dict, 200
 
@@ -168,8 +175,10 @@ class FilteredAggregatedData(Resource):
         command = 'select min(price), max(price), avg(price), {0} from sales where sale_date ' \
                   'between \'{1}\' and \'{2}\' And {3} {4} {5} group by {0};'.format \
             (aggregation_type, from_date, to_date, city_condition, size_condition, type_condition)
-
-        query = DbServices.query_execute(command)
+        try:
+            query = DbServices.query_execute(command)
+        except:
+            return "Something went wrong!", 500
 
         return create_final_dict(aggregation_type, query), 200
 
