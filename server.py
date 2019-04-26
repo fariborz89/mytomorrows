@@ -16,6 +16,5 @@ api.add_resource(FilteredAggregatedData,
                  '/v1/buildings/sale/aggregated/filter/<aggregation_type>/<from_date>/<to_date>')  # Route_3
 
 if __name__ == '__main__':
-    print 'asdf aSdf iu 1 123'.lower().strip()
     DbServices.create_sales_table()
     app.run(port=SERVER_PORT)

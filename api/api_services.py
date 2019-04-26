@@ -8,6 +8,11 @@ from db.services import DbServices
 
 class NewSales(Resource):
     def post(self):
+        """
+        Converting the csv file to the database objects and insert in database
+        if the file doesn't have the correct format it will not add any entity to the db
+        :return: http status code and the message.
+        """
 
         f = request.files['file']
 
@@ -50,6 +55,13 @@ class NewSales(Resource):
         return 'File uploaded successfully', 201
 
     def check_input_file(self, f):
+        """
+        Checking the correct style and information of the input file
+        The first line must be in order and other line must have the information of
+        city, sale_date, price and size
+        :param f: the csv file
+        :return: The http status code and the message
+        """
         line = f.readline()
 
         # checking the first line order
@@ -71,6 +83,11 @@ class NewSales(Resource):
         return True, 'ok'
 
     def check_first_line(self, line):
+        """
+        Checks the correct format of the first line of csv file
+        :param line: the first line of csv file
+        :return: is it ok and the message
+        """
         if line.lower().strip() == 'street,city,zip,state,beds,baths,sq__ft,type,sale_date,price,latitude,longitude':
             return True, 'ok'
         return False, "First line is not in order."
@@ -78,6 +95,17 @@ class NewSales(Resource):
 
 class AggregatedData(Resource):
     def get(self, aggregation_type, from_date, to_date):
+        """
+        This function will aggregate the sales data in an interval by city or size or type
+        It will provide the avg, min and max of the prices
+        :param aggregation_type: We provide three kind of aggregation --> city, type, size
+        :param from_date: The processing will be done on an interval of time, this is the beginning of interval
+        :param to_date: The processing will be done on an interval of time, this is the end of interval
+        :return: http status code and the dictionary (json) of the result which contains min, max, avg of aggregation
+        """
+        if not self.check_aggregation_type(aggregation_type):
+            return "No valid aggregation type: " + aggregation_type, 400
+
         from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
         to_date = datetime.strptime(to_date, "%Y-%m-%d").date()
 
@@ -87,9 +115,25 @@ class AggregatedData(Resource):
         final_dict = create_final_dict(aggregation_type, query)
         return final_dict, 200
 
+    def check_aggregation_type(self, aggregation_type):
+        if aggregation_type != 'city' and aggregation_type != 'size' and aggregation_type != 'type':
+            return False
+        return True
+
 
 class FilteredAggregatedData(Resource):
     def get(self, aggregation_type, from_date, to_date):
+        """
+        This function will aggregate the sales data in an interval by city or size or type AND will do a
+        filter by city or size or type
+        It will provide the avg, min and max of the prices
+        For example we want the aggregated data of Berlin city by type of buildings in Januray
+        Filter will be as query parameter
+        :param aggregation_type: We provide three kind of aggregation --> city, type, size
+        :param from_date: The processing will be done on an interval of time, this is the beginning of interval
+        :param to_date: The processing will be done on an interval of time, this is the end of interval
+        :return: http status code and the dictionary (json) of the result which contains min, max, avg of aggregation
+        """
         city_condition = ''
         size_condition = ''
         type_condition = ''
