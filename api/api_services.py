@@ -38,7 +38,7 @@ class NewSales(Resource):
             DbServices.insert_data(dict)
             line = f.readline()
             print line
-        return 'file uploaded successfully', 201
+        return 'File uploaded successfully', 201
 
 
 class AggregatedData(Resource):
