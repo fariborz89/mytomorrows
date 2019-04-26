@@ -2,8 +2,8 @@ from flask import Flask, request
 from flask_restful import Resource, Api
 
 from utils.config import SERVER_PORT
-from db.services import DbServices
 from api.api_services import NewSales, AggregatedData, FilteredAggregatedData
+from db.services import *
 
 
 app = Flask(__name__)
@@ -15,5 +15,5 @@ api.add_resource(FilteredAggregatedData,
                  '/v1/buildings/sale/aggregated/filter/<aggregation_type>/<from_date>/<to_date>')  # Route_3
 
 if __name__ == '__main__':
-    DbServices.create_table_data()
+    DbServices.create_sales_table()
     app.run(port=SERVER_PORT)

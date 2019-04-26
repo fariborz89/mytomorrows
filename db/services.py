@@ -1,19 +1,61 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, Column, Integer, Date, Float, String, MetaData, ForeignKey
+
 from utils.config import DB
+
+metadata = MetaData()
+
+sales = Table('sales', metadata,
+              Column('id', Integer, primary_key=True),
+              Column('street', String),
+              Column('city', String),
+              Column('zip', Integer),
+              Column('state', String),
+              Column('beds', Integer),
+              Column('baths', Integer),
+              Column('size', Integer),
+              Column('type', String),
+              Column('sale_date', Date),
+              Column('price', Integer),
+              Column('latitude', Float),
+              Column('longitude', Float),
+              )
 
 
 class DbServices:
-    db_connect = create_engine('sqlite:///' + DB)
+    engine = create_engine('sqlite:///' + DB)
 
     @staticmethod
     def query_execute(command):
-        conn = DbServices.db_connect.connect()
+        '''
+        :param command:
+        :return:
+        '''
+        conn = DbServices.engine.connect()
         return conn.execute(command)
 
     @staticmethod
-    def create_table_data():
-        conn = DbServices.db_connect.connect()
-        command_to_create = 'create table if not exists data(Street varchar (100), City varchar(50), Zip int, State varchar(4),' \
-                            ' Beds int, Baths int, Size int, Type varchar(30), SaleDate date, Price int,' \
-                            ' Latitude float, Longitude float);'
-        conn.execute(command_to_create)
+    def insert_data(dict):
+        '''
+        :param command:
+        :return:
+        '''
+        ins = sales.insert().values(
+            street=dict['street'],
+            city=dict['city'],
+            zip=dict['zip'],
+            state=dict['state'],
+            beds=dict['beds'],
+            baths=dict['baths'],
+            size=dict['size'],
+            type=dict['type'],
+            sale_date=dict['sale_date'],
+            price=dict['price'],
+            latitude=dict['latitude'],
+            longitude=dict['longitude'])
+        result = DbServices.engine.execute(ins)
+        return result
+
+    @staticmethod
+    def create_sales_table():
+        metadata.create_all(DbServices.engine)
+        return
