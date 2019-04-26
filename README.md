@@ -9,4 +9,4 @@ You must also **create the db** before running the project.
 To run the project you just need to do:  
 **python server.py**
 
-_There is also a postman collection to get more familiar to the apis._
+_There is also a postman collection to get more familiar with the APIs._
