@@ -26,19 +26,21 @@ class DbServices:
 
     @staticmethod
     def query_execute(command):
-        '''
-        :param command:
-        :return:
-        '''
+        """
+        Will execute the sql command
+        :param command: the command to execute
+        :return: The result of the db execution of command
+        """
         conn = DbServices.engine.connect()
         return conn.execute(command)
 
     @staticmethod
     def insert_data(dict):
-        '''
-        :param command:
-        :return:
-        '''
+        """
+        This function will insert new entities to the db
+        :param dict: the dictionary of the entity
+        :return: The result of db insert
+        """
         ins = sales.insert().values(
             street=dict['street'],
             city=dict['city'],
@@ -57,5 +59,9 @@ class DbServices:
 
     @staticmethod
     def create_sales_table():
+        """
+        This function will create the sales table if doesn't exist
+        :return:
+        """
         metadata.create_all(DbServices.engine)
         return

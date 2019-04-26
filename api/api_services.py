@@ -31,6 +31,9 @@ class NewSales(Resource):
                 line = f.readline()
                 continue
             words = line.split(',')
+
+            # sale_date of the building has this format Wed May 21 00:00:00 EDT 2008, in the next lines
+            # some redundant info will be removed. We just need the date 2008-05-15|
             list_time = words[8].split(' ')
             sale_date_string = ' '.join(list_time[1: 4]) + ' ' + list_time[5]
             sale_date = datetime.strptime(sale_date_string, "%b %d %H:%M:%S %Y")
@@ -103,7 +106,7 @@ class AggregatedData(Resource):
         :param to_date: The processing will be done on an interval of time, this is the end of interval
         :return: http status code and the dictionary (json) of the result which contains min, max, avg of aggregation
         """
-        if not self.check_aggregation_type(aggregation_type):
+        if not check_aggregation_type(aggregation_type):
             return "No valid aggregation type: " + aggregation_type, 400
 
         from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
@@ -114,11 +117,6 @@ class AggregatedData(Resource):
         query = DbServices.query_execute(command)
         final_dict = create_final_dict(aggregation_type, query)
         return final_dict, 200
-
-    def check_aggregation_type(self, aggregation_type):
-        if aggregation_type != 'city' and aggregation_type != 'size' and aggregation_type != 'type':
-            return False
-        return True
 
 
 class FilteredAggregatedData(Resource):
@@ -134,6 +132,9 @@ class FilteredAggregatedData(Resource):
         :param to_date: The processing will be done on an interval of time, this is the end of interval
         :return: http status code and the dictionary (json) of the result which contains min, max, avg of aggregation
         """
+        if not check_aggregation_type(aggregation_type):
+            return "No valid aggregation type: " + aggregation_type, 400
+
         city_condition = ''
         size_condition = ''
         type_condition = ''
@@ -142,6 +143,7 @@ class FilteredAggregatedData(Resource):
         first_and_char = ''
         second_and_char = ''
 
+        # In the next three if, we are creating the where clause of aggregation query
         if 'city' in request.args:
             city = request.args['city']
             city_condition = 'city=\'' + city.lower() + '\''
@@ -170,3 +172,9 @@ class FilteredAggregatedData(Resource):
         query = DbServices.query_execute(command)
 
         return create_final_dict(aggregation_type, query), 200
+
+
+def check_aggregation_type(aggregation_type):
+    if aggregation_type != 'city' and aggregation_type != 'size' and aggregation_type != 'type':
+        return False
+    return True

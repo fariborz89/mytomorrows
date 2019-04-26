@@ -2,6 +2,11 @@ from models.price import CityPrice, SizePrice, TypePrice
 
 
 def create_final_dict(aggregation_type, query):
+    """
+    :param aggregation_type: Is the aggregation based on city, size or type
+    :param query: The result of database execution command, this input has the list of response.
+    :return: dictionary of the aggregated data which can be shown as json
+    """
     final_list = []
     if aggregation_type == 'city':
         for r in query.cursor.fetchall():

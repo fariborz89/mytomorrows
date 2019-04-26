@@ -1,10 +1,9 @@
-from flask import Flask, request
-from flask_restful import Resource, Api
+from flask import Flask
+from flask_restful import Api
 
 from utils.config import SERVER_PORT
 from api.api_services import NewSales, AggregatedData, FilteredAggregatedData
 from db.services import *
-import math
 
 
 app = Flask(__name__)
