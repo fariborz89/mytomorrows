@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 from sqlalchemy import create_engine
 from datetime import datetime
 from utils.config import SERVER_PORT, DB
+from utils.base import create_final_dict
 
 db_connect = create_engine('sqlite:///' + DB)
 app = Flask(__name__)
@@ -15,7 +16,6 @@ class NewSales(Resource):
         line = f.readline()
         first_line = True
         while line != '':
-            # print(line)
             if first_line:
                 first_line = False
                 line = f.readline()
@@ -48,6 +48,7 @@ class AggregatedData(Resource):
 
         final_dict = create_final_dict(aggregation_type, query)
         return final_dict, 200
+
 
 class FilteredAggregatedData(Resource):
     def get(self, aggregation_type, from_date, to_date):
@@ -82,7 +83,7 @@ class FilteredAggregatedData(Resource):
         conn = db_connect.connect()
 
         command = 'select min(price), max(price), avg(price), {0} from data where SaleDate ' \
-                  'between \'{1}\' and \'{2}\' And {3} {4} {5} group by {0};'.format\
+                  'between \'{1}\' and \'{2}\' And {3} {4} {5} group by {0};'.format \
             (aggregation_type, from_date, to_date, city_condition, size_condition, type_condition)
 
         print(command)
@@ -91,52 +92,11 @@ class FilteredAggregatedData(Resource):
         return create_final_dict(aggregation_type, query), 200
 
 
-def create_final_dict(aggregation_type, query):
-    final_list = []
-    if aggregation_type == 'city':
-        for r in query.cursor.fetchall():
-            obj = CityPrice(r[0], r[1], r[2], r[3])
-            final_list.append(obj)
-
-    if aggregation_type == 'size':
-        for r in query.cursor.fetchall():
-            obj = SizePrice(r[0], r[1], r[2], r[3])
-            final_list.append(obj)
-
-    if aggregation_type == 'type':
-        for r in query.cursor.fetchall():
-            obj = TypePrice(r[0], r[1], r[2], r[3])
-            final_list.append(obj)
-    final_dict = [obj.__dict__ for obj in final_list]
-    return final_dict
-
-class Price:
-    def __init__(self, min, max, avg):
-        self.min = min
-        self.max = max
-        self.avg = avg
-
-
-class CityPrice(Price):
-    def __init__(self, min, max, avg, city):
-        Price.__init__(self, min, max, avg)
-        self.city = city
-
-
-class SizePrice(Price):
-    def __init__(self, min, max, avg, size):
-        Price.__init__(self, min, max, avg)
-        self.size = size
-
-
-class TypePrice(Price):
-    def __init__(self, min, max, avg, type):
-        Price.__init__(self, min, max, avg)
-        self.type = type
-
-
 api.add_resource(NewSales, '/v1/buildings/sale')  # Route_1
 api.add_resource(AggregatedData, '/v1/buildings/sale/aggregated/<aggregation_type>/<from_date>/<to_date>')  # Route_2
-api.add_resource(FilteredAggregatedData, '/v1/buildings/sale/aggregated/filter/<aggregation_type>/<from_date>/<to_date>')  # Route_3
+api.add_resource(FilteredAggregatedData,
+                 '/v1/buildings/sale/aggregated/filter/<aggregation_type>/<from_date>/<to_date>')  # Route_3
+
+
 if __name__ == '__main__':
     app.run(port=SERVER_PORT)
