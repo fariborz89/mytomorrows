@@ -57,7 +57,7 @@ class NewSales(Resource):
                 return 'Something went wrong with this line: ' + line + ' BUT THE PREVIOUS LINES ARE SAVED.', 500
 
             line = f.readline()
-            print line
+
 
         return 'File uploaded successfully', 201
 
